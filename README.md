@@ -1,17 +1,11 @@
-# abonita_advmobprog
+# John Gabriel Abonita
 
-A new Flutter project.
+# INF231
 
-## Getting Started
+# CTADMOBL Advance Mobile Programming
 
-This project is a starting point for a Flutter application.
+Explored how Flutter handles cart data through API integration, navigation, and state management using Provider and getById.
 
-A few resources to get you started if this is your first Flutter project:
+## Laboratory Activity 3
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+The cart model represents the cart information retrieved from the API and provides the data needed for displaying each product. Services handle the communication with the API and retrieve the appropriate cart data, which is then passed to the cart screen for rendering. Users can select any cart item, making it possible to navigate directly to the same details_screen.dart used for viewing individual product information. This updated design pattern separates the data, service, and interface responsibilities, making the application easier to organize and maintain. Using getById at the Cart endpoint allows the application to retrieve a specific user's cart through their user ID instead of loading unrelated cart data.

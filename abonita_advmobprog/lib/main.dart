@@ -1,4 +1,3 @@
-// packages
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -11,22 +10,22 @@ import 'screens/settings_screen.dart';
 
 // providers
 import 'providers/theme_provider.dart';
+import 'providers/cart_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]).then((
-    _,
-  ) async {
-    try {
-      await dotenv.load(fileName: 'assets/.env');
-      print("ENV LOADED");
-    } catch (e) {
-      print("ENV ERROR: $e");
-    }
+  await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
 
-    runApp(const AbonitaAdvMobProg());
-  });
+  try {
+    await dotenv.load(fileName: 'assets/.env');
+
+    print("ENV LOADED");
+  } catch (e) {
+    print("ENV ERROR: $e");
+  }
+
+  runApp(const AbonitaAdvMobProg());
 }
 
 class AbonitaAdvMobProg extends StatelessWidget {
@@ -34,8 +33,11 @@ class AbonitaAdvMobProg extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) => ThemeProvider(),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => ThemeProvider()),
+        ChangeNotifierProvider(create: (_) => CartProvider()),
+      ],
       child: ScreenUtilInit(
         designSize: const Size(412, 715),
         minTextAdapt: true,

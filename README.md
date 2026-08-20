@@ -1,17 +1,9 @@
-# abonita_advmobprog
+# John Gabriel Abonita
+# INF231
+# CTADMOBL Advance Mobile Programming
 
-A new Flutter project.
+Discussing how the model, services and screen interact with each other to render the API endpoint and how they relate to the new design pattern of the activity. 
 
-## Getting Started
+## Laboratory Activity 2
 
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+The Service retrieves data from the API and converts it into Model objects that represent each product. These model objects are then passed to the Screen, which uses them to display the product information to the user. This interaction allows the application to separate data retrieval from the user interface, making each component responsible for a specific task. As a result, the application becomes more organized, easier to understand, and simpler to maintain as it grows.

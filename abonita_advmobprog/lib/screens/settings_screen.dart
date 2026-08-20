@@ -1,24 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import 'main.dart';
+import '../providers/theme_provider.dart';
 
-// Displays the Settings Page
-class SettingsPage extends StatelessWidget {
-  const SettingsPage({super.key});
+// Displays the application settings.
+class SettingsScreen extends StatelessWidget {
+  const SettingsScreen({super.key});
 
-  // Builds the Settings Page Interface
+  // Builds the settings screen interface.
   @override
   Widget build(BuildContext context) {
-    final themeModel = Provider.of<ThemeModel>(context);
+    final themeModel = context.watch<ThemeProvider>();
 
     return Scaffold(
       appBar: AppBar(title: const Text("Settings")),
-
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            // Displays the settings section title.
             const Text("App State"),
 
             const SizedBox(height: 20),
@@ -26,6 +26,7 @@ class SettingsPage extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
+                // Displays the current theme mode.
                 Text(
                   themeModel.isDark ? "Dark Mode" : "Light Mode",
                   style: Theme.of(context).textTheme.headlineMedium,
@@ -33,10 +34,9 @@ class SettingsPage extends StatelessWidget {
 
                 const SizedBox(width: 20),
 
+                // Switches between light and dark mode.
                 Switch(
                   value: themeModel.isDark,
-
-                  // Changes the application's theme.
                   onChanged: (_) {
                     themeModel.toggleTheme();
                   },

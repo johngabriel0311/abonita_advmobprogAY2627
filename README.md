@@ -4,8 +4,8 @@
 
 # CTADMOBL Advance Mobile Programming
 
-Explored how Flutter handles cart data through API integration, navigation, and state management using Provider and getById.
+Explored how Flutter integrates user authentication, user models, API services, profile rendering, and user-specific cart data.
 
-## Laboratory Activity 3
+## Laboratory Activity 4
 
-The cart model represents the cart information retrieved from the API and provides the data needed for displaying each product. Services handle the communication with the API and retrieve the appropriate cart data, which is then passed to the cart screen for rendering. Users can select any cart item, making it possible to navigate directly to the same details_screen.dart used for viewing individual product information. This updated design pattern separates the data, service, and interface responsibilities, making the application easier to organize and maintain. Using getById at the Cart endpoint allows the application to retrieve a specific user's cart through their user ID instead of loading unrelated cart data.
+The user model stores the authenticated user’s information, while the user service retrieves and manages the saved data used by the screens. The ProfileScreen uses the User model and UserService to display details such as the user’s name, username, email, gender, and user ID. This updated design separates the data model, service logic, and user interface, making the application easier to organize and maintain. For the cart, the saved user data is retrieved through the UserService and the user’s ID is used to request the corresponding cart from the API. This allows the CartScreen to display the cart associated with the currently logged-in user instead of relying on a fixed user ID.

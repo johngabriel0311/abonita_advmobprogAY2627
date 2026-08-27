@@ -5,7 +5,6 @@ import 'package:cached_network_image/cached_network_image.dart';
 
 import '../models/product_model.dart';
 import '../providers/cart_provider.dart';
-import '../widgets/custom_text.dart';
 
 /// Displays the selected product details.
 class ProductDetailsScreen extends StatefulWidget {

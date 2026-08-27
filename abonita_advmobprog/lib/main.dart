@@ -7,6 +7,8 @@ import 'package:provider/provider.dart';
 // screens
 import 'screens/home_screen.dart';
 import 'screens/settings_screen.dart';
+import 'screens/signin_screen.dart';
+import 'screens/splash_screen.dart';
 
 // providers
 import 'providers/theme_provider.dart';
@@ -47,14 +49,29 @@ class AbonitaAdvMobProg extends StatelessWidget {
 
           return MaterialApp(
             debugShowCheckedModeBanner: false,
+
             theme: themeModel.lightTheme,
             darkTheme: themeModel.darkTheme,
+
             themeMode: themeModel.isDark ? ThemeMode.dark : ThemeMode.light,
+
             title: 'E-Commerce App',
-            initialRoute: '/home',
+
+            // Shows the splash screen first.
+            initialRoute: '/splash',
+
             routes: {
+              // Splash screen
+              '/splash': (context) => const SplashScreen(),
+
+              // Main application
               '/home': (context) => const HomeScreen(),
+
+              // Settings
               '/settings': (context) => const SettingsScreen(),
+
+              // Sign in
+              '/signin': (context) => const SigninScreen(),
             },
           );
         },

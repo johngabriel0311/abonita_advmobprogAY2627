@@ -12,6 +12,7 @@ import '../models/product_model.dart';
 
 // services
 import '../services/cart_service.dart';
+import '../services/user_service.dart';
 
 // providers
 import '../providers/cart_provider.dart';
@@ -25,9 +26,7 @@ import 'details_screen.dart';
 // Enhancement 1:
 // Displays the user's shopping cart.
 class CartScreen extends StatefulWidget {
-  final int userId;
-
-  const CartScreen({super.key, this.userId = 1});
+  const CartScreen({super.key});
 
   // Creates the state for the cart screen.
   @override
@@ -36,18 +35,32 @@ class CartScreen extends StatefulWidget {
 
 // Manages the cart items and quantities.
 class _CartScreenState extends State<CartScreen> {
-  late final Future<List<Cart>> _cartsFuture;
+  late final Future<Cart?> _cartFuture;
 
   // Keeps API cart quantities in memory during the app session.
   static final Map<int, int> _apiQuantities = {};
+
+  // Stores API product IDs removed during the current session.
+  static final Set<int> _removedApiProducts = {};
+
+  final UserService _userService = UserService();
+  final CartService _cartService = CartService();
 
   @override
   void initState() {
     super.initState();
 
     // Enhancement 3:
-    // Retrieves the carts from the DummyJSON Cart API.
-    _cartsFuture = CartService().getAllCarts();
+    // Gets the saved user's ID and uses it to retrieve the cart belonging to the currently logged-in user.
+    _cartFuture = _loadUserCart();
+  }
+
+  // Enhancement 3:
+  // Retrieves the saved user from UserService and uses the user's ID to get their respective cart.
+  Future<Cart?> _loadUserCart() async {
+    final user = await _userService.getUser();
+
+    return _cartService.getCartByUserId(user.id);
   }
 
   // Gets the complete product information from the API.
@@ -112,6 +125,13 @@ class _CartScreenState extends State<CartScreen> {
     });
   }
 
+  // Removes an API cart product only for the current app session.
+  void _removeApiProduct(int productId) {
+    setState(() {
+      _removedApiProducts.add(productId);
+    });
+  }
+
   // Builds the cart screen interface.
   @override
   Widget build(BuildContext context) {
@@ -120,9 +140,10 @@ class _CartScreenState extends State<CartScreen> {
     final sessionCart = context.watch<CartProvider>();
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF9F7FF),
-      body: FutureBuilder<List<Cart>>(
-        future: _cartsFuture,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+
+      body: FutureBuilder<Cart?>(
+        future: _cartFuture,
         builder: (context, snapshot) {
           // Shows a loading indicator while the cart loads.
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -139,18 +160,11 @@ class _CartScreenState extends State<CartScreen> {
             );
           }
 
-          final carts = snapshot.data ?? [];
+          // Gets the cart of the logged-in user.
+          final Cart? apiCart = snapshot.data;
 
-          // Enhancement 3:
-          // Gets only the cart belonging to the current user.
-          final userCarts = carts
-              .where((cart) => cart.userId == widget.userId)
-              .toList();
-
-          final Cart? apiCart = userCarts.isNotEmpty ? userCarts.first : null;
-
-          // Shows an empty cart message if there are
-          // no API products and no session products.
+          // Shows an empty cart message if there are no
+          // API products and no session products.
           if (apiCart == null && sessionCart.items.isEmpty) {
             return Center(
               child: Text(
@@ -166,17 +180,29 @@ class _CartScreenState extends State<CartScreen> {
                 child: ListView(
                   padding: EdgeInsets.fromLTRB(12.w, 16.h, 12.w, 8.h),
                   children: [
-                    // API cart products fetched from the DummyJSON API
+                    // Enhancement 1:
+                    // API cart products are clickable and
+                    // open the product details screen.
                     if (apiCart != null)
-                      ...apiCart.products.map((product) {
-                        final quantity = _getApiQuantity(product);
+                      ...apiCart.products
+                          .where(
+                            (product) =>
+                                !_removedApiProducts.contains(product.id),
+                          )
+                          .map((product) {
+                            final quantity = _getApiQuantity(product);
 
-                        final itemTotal = product.price * quantity;
+                            final itemTotal = product.price * quantity;
 
-                        return _buildApiCartItem(product, quantity, itemTotal);
-                      }),
+                            return _buildApiCartItem(
+                              product,
+                              quantity,
+                              itemTotal,
+                            );
+                          }),
 
-                    // Cart products added during the current session
+                    // Cart products added during the
+                    // current session.
                     ...sessionCart.items.map((item) {
                       final product = item.product;
 
@@ -204,7 +230,8 @@ class _CartScreenState extends State<CartScreen> {
   }
 
   // Enhancement 1:
-  // Makes each cart item clickable and opens the product detail screen when selected.
+  // Makes each cart item clickable and opens the
+  // product detail screen when selected.
   Widget _buildApiCartItem(dynamic product, int quantity, double itemTotal) {
     return GestureDetector(
       onTap: () {
@@ -214,7 +241,7 @@ class _CartScreenState extends State<CartScreen> {
         margin: EdgeInsets.only(bottom: 12.h),
         padding: EdgeInsets.all(10.r),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Theme.of(context).cardColor,
           borderRadius: BorderRadius.circular(14.r),
           boxShadow: [
             BoxShadow(
@@ -317,7 +344,7 @@ class _CartScreenState extends State<CartScreen> {
         margin: EdgeInsets.only(bottom: 12.h),
         padding: EdgeInsets.all(10.r),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Theme.of(context).cardColor,
           borderRadius: BorderRadius.circular(14.r),
           boxShadow: [
             BoxShadow(
@@ -466,6 +493,29 @@ class _CartScreenState extends State<CartScreen> {
             child: Icon(Icons.remove, size: 18.sp),
           ),
         ),
+
+        SizedBox(height: 5.h),
+
+        // Session-only remove button for API products.
+        SizedBox(
+          width: 34.w,
+          height: 32.h,
+          child: ElevatedButton(
+            onPressed: () {
+              _removeApiProduct(product.id);
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFFFF6255),
+              foregroundColor: Colors.white,
+              elevation: 0,
+              padding: EdgeInsets.zero,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(9.r),
+              ),
+            ),
+            child: Icon(Icons.delete_outline, size: 18.sp),
+          ),
+        ),
       ],
     );
   }
@@ -474,6 +524,7 @@ class _CartScreenState extends State<CartScreen> {
   Widget _buildSessionQuantityControls(int productId, int quantity) {
     return Column(
       children: [
+        // Add
         SizedBox(
           width: 34.w,
           height: 32.h,
@@ -496,6 +547,7 @@ class _CartScreenState extends State<CartScreen> {
 
         SizedBox(height: 5.h),
 
+        // Quantity
         Text(
           quantity.toString(),
           style: TextStyle(
@@ -507,6 +559,7 @@ class _CartScreenState extends State<CartScreen> {
 
         SizedBox(height: 5.h),
 
+        // Decrease
         SizedBox(
           width: 34.w,
           height: 32.h,
@@ -530,6 +583,29 @@ class _CartScreenState extends State<CartScreen> {
             child: Icon(Icons.remove, size: 18.sp),
           ),
         ),
+
+        SizedBox(height: 5.h),
+
+        // Remove
+        SizedBox(
+          width: 34.w,
+          height: 32.h,
+          child: ElevatedButton(
+            onPressed: () {
+              context.read<CartProvider>().removeFromCart(productId);
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFFFF6255),
+              foregroundColor: Colors.white,
+              elevation: 0,
+              padding: EdgeInsets.zero,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(9.r),
+              ),
+            ),
+            child: Icon(Icons.delete_outline, size: 18.sp),
+          ),
+        ),
       ],
     );
   }
@@ -542,6 +618,11 @@ class _CartScreenState extends State<CartScreen> {
     // Calculates totals from the API cart.
     if (cart != null) {
       for (final product in cart.products) {
+        // Ignore API products removed during this session.
+        if (_removedApiProducts.contains(product.id)) {
+          continue;
+        }
+
         final quantity = _getApiQuantity(product);
 
         subtotal += product.price * quantity;
@@ -565,7 +646,7 @@ class _CartScreenState extends State<CartScreen> {
 
     return Container(
       padding: EdgeInsets.fromLTRB(12.w, 8.h, 12.w, 14.h),
-      color: const Color(0xFFF9F7FF),
+      color: Theme.of(context).scaffoldBackgroundColor,
       child: Column(
         children: [
           Row(

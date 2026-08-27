@@ -1,9 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
+// screens
 import 'product_screen.dart';
 import 'cart_screen.dart';
+import 'profile_screen.dart';
 
+// services
+import '../services/user_service.dart';
+
+// widgets
 import '../widgets/custom_text.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -22,6 +28,26 @@ class _HomeScreenState extends State<HomeScreen> {
 
   final PageController _pageController = PageController();
 
+  String _firstName = 'Profile';
+
+  // Loads the saved user's first name.
+  @override
+  void initState() {
+    super.initState();
+    _loadUser();
+  }
+
+  // Retrieves the saved user data.
+  Future<void> _loadUser() async {
+    final user = await UserService().getUser();
+
+    if (!mounted) return;
+
+    setState(() {
+      _firstName = user.firstName;
+    });
+  }
+
   // Changes the current page.
   void _onTappedBar(int value) {
     setState(() {
@@ -36,9 +62,7 @@ class _HomeScreenState extends State<HomeScreen> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => const Center(
-          child: Scaffold(body: Center(child: Text('Chat Page'))),
-        ),
+        builder: (_) => const Scaffold(body: Center(child: Text('Chat Page'))),
       ),
     );
   }
@@ -61,7 +85,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   text: (_selectedIndex == 1)
                       ? 'Cart'
                       : (_selectedIndex == 2)
-                      ? 'Profile'
+                      ? _firstName
                       : 'Home',
                   fontSize: 20.sp,
                   fontWeight: FontWeight.w600,
@@ -70,7 +94,9 @@ class _HomeScreenState extends State<HomeScreen> {
           actions: [
             IconButton(
               icon: Icon(Icons.settings, size: 24.sp),
-              onPressed: () => Navigator.pushNamed(context, '/settings'),
+              onPressed: () {
+                Navigator.pushNamed(context, '/settings');
+              },
             ),
           ],
         ),
@@ -79,11 +105,7 @@ class _HomeScreenState extends State<HomeScreen> {
           physics: const NeverScrollableScrollPhysics(),
           controller: _pageController,
 
-          children: const [
-            ProductScreen(),
-            CartScreen(),
-            Center(child: Text('Profile Page')),
-          ],
+          children: const [ProductScreen(), CartScreen(), ProfileScreen()],
 
           onPageChanged: (page) {
             setState(() {
@@ -104,7 +126,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: const Icon(Icons.chat),
               ),
 
-        // Positions the Chat button at the bottom.
+        // Positions the Chat button at the bottom-right.
         floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
 
         bottomNavigationBar: BottomNavigationBar(
@@ -126,5 +148,11 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
   }
 }

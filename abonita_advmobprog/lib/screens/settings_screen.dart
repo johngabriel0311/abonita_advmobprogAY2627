@@ -13,13 +13,28 @@ class SettingsScreen extends StatelessWidget {
     final themeModel = context.watch<ThemeProvider>();
 
     return Scaffold(
-      appBar: AppBar(title: const Text("Settings")),
+      appBar: AppBar(
+        backgroundColor: const Color(0xFF354591),
+        foregroundColor: Colors.white,
+        elevation: 2,
+        title: const Text(
+          "Settings",
+          style: TextStyle(fontFamily: 'Poppins', fontWeight: FontWeight.w600),
+        ),
+      ),
+
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             // Displays the settings section title.
-            const Text("App State"),
+            const Text(
+              "App State",
+              style: TextStyle(
+                fontFamily: 'Poppins',
+                fontWeight: FontWeight.w600,
+              ),
+            ),
 
             const SizedBox(height: 20),
 
@@ -29,7 +44,9 @@ class SettingsScreen extends StatelessWidget {
                 // Displays the current theme mode.
                 Text(
                   themeModel.isDark ? "Dark Mode" : "Light Mode",
-                  style: Theme.of(context).textTheme.headlineMedium,
+                  style: Theme.of(
+                    context,
+                  ).textTheme.headlineMedium?.copyWith(fontFamily: 'Poppins'),
                 ),
 
                 const SizedBox(width: 20),

@@ -43,6 +43,8 @@ class _ProductScreenState extends State<ProductScreen> {
     _productsFuture = ProductService().getAllProducts();
 
     _productsFuture.then((products) {
+      if (!mounted) return;
+
       setState(() {
         _allProducts = products;
         _filteredProducts = products;
@@ -191,40 +193,100 @@ class _ProductScreenState extends State<ProductScreen> {
   // Builds the product screen interface.
   @override
   Widget build(BuildContext context) {
+    // -----------------------------------------
+    // THEME COLORS
+    // -----------------------------------------
+
+    final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
+
+    final Color primaryColor = const Color(0xFF354591);
+
+    final Color yellowColor = const Color(0xFFFFD41C);
+
+    final Color categoryCircleColor = isDarkMode
+        ? const Color(0xFFE9E9E9)
+        : Colors.grey.shade200;
+
+    final Color categoryTextColor = isDarkMode ? Colors.white : Colors.black87;
+
+    final Color searchTextColor = isDarkMode ? Colors.white : Colors.black87;
+
+    final Color searchHintColor = isDarkMode ? Colors.white70 : Colors.black54;
+
+    final Color searchBorderColor = isDarkMode
+        ? Colors.white54
+        : Colors.black54;
+
     return SafeArea(
       child: SingleChildScrollView(
         padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Search bar.
+            // -----------------------------------------
+            // SEARCH BAR
+            // -----------------------------------------
             TextField(
               controller: _searchController,
 
-              // Filters products as the user types.
+              style: TextStyle(
+                fontFamily: 'Poppins',
+                fontSize: 14.sp,
+                color: searchTextColor,
+              ),
+
+              cursorColor: isDarkMode ? yellowColor : primaryColor,
+
               onChanged: _searchProducts,
 
               decoration: InputDecoration(
                 hintText: 'Search products...',
-                prefixIcon: const Icon(Icons.search),
+
+                hintStyle: TextStyle(
+                  fontFamily: 'Poppins',
+                  fontSize: 14.sp,
+                  color: searchHintColor,
+                ),
+
+                prefixIcon: Icon(Icons.search, color: searchHintColor),
+
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12.r),
+                ),
+
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12.r),
+                  borderSide: BorderSide(color: searchBorderColor, width: 1.2),
+                ),
+
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12.r),
+                  borderSide: BorderSide(
+                    color: isDarkMode ? yellowColor : primaryColor,
+                    width: 2,
+                  ),
                 ),
               ),
             ),
 
             SizedBox(height: 14.h),
 
-            // Displays the available product categories.
+            // -----------------------------------------
+            // CATEGORIES
+            // -----------------------------------------
             SizedBox(
-              height: 100.h,
+              height: 80.h,
+
               child: _categories.isEmpty
                   ? const SizedBox()
                   : ListView.separated(
                       scrollDirection: Axis.horizontal,
+
                       itemCount: _categories.length + 1,
+
                       separatorBuilder: (context, index) =>
                           SizedBox(width: 14.w),
+
                       itemBuilder: (context, index) {
                         final category = index == 0
                             ? 'All'
@@ -236,46 +298,66 @@ class _ProductScreenState extends State<ProductScreen> {
                           onTap: () {
                             _selectCategory(category);
                           },
+
                           child: SizedBox(
                             width: 65.w,
+
                             child: Column(
                               children: [
-                                // Circular category icon.
+                                // -----------------------------------------
+                                // CATEGORY ICON
+                                // -----------------------------------------
                                 Container(
                                   width: 52.w,
                                   height: 52.w,
+
                                   decoration: BoxDecoration(
                                     shape: BoxShape.circle,
+
                                     color: isSelected
-                                        ? const Color(0xFF354591)
-                                        : Colors.grey.shade200,
+                                        ? primaryColor
+                                        : categoryCircleColor,
                                   ),
+
                                   child: Icon(
                                     _getCategoryIcon(category),
+
                                     size: 24.sp,
+
                                     color: isSelected
                                         ? Colors.white
-                                        : const Color(0xFF354591),
+                                        : primaryColor,
                                   ),
                                 ),
 
                                 SizedBox(height: 6.h),
 
-                                // Displays the category name.
+                                // -----------------------------------------
+                                // CATEGORY NAME
+                                // -----------------------------------------
                                 Text(
                                   _formatCategoryName(category),
+
                                   textAlign: TextAlign.center,
+
                                   maxLines: 2,
+
                                   overflow: TextOverflow.ellipsis,
+
                                   style: TextStyle(
                                     fontFamily: 'Poppins',
+
                                     fontSize: 10.sp,
+
                                     fontWeight: isSelected
                                         ? FontWeight.bold
                                         : FontWeight.w500,
+
                                     color: isSelected
-                                        ? const Color(0xFF354591)
-                                        : Colors.black87,
+                                        ? (isDarkMode
+                                              ? yellowColor
+                                              : primaryColor)
+                                        : categoryTextColor,
                                   ),
                                 ),
                               ],
@@ -286,17 +368,24 @@ class _ProductScreenState extends State<ProductScreen> {
                     ),
             ),
 
-            SizedBox(height: 16.h),
+            SizedBox(height: 4.h),
 
+            // -----------------------------------------
+            // PRODUCTS
+            // -----------------------------------------
             FutureBuilder<List<Product>>(
               future: _productsFuture,
+
               builder: (context, snapshot) {
                 // Shows a loading indicator while products load.
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return Center(
                     child: Padding(
                       padding: EdgeInsets.all(32.r),
-                      child: const CircularProgressIndicator(),
+
+                      child: CircularProgressIndicator(
+                        color: isDarkMode ? yellowColor : primaryColor,
+                      ),
                     ),
                   );
                 }
@@ -323,11 +412,13 @@ class _ProductScreenState extends State<ProductScreen> {
                   );
                 }
 
-                // Displays a message when search or category filtering has no results.
+                // Displays a message when search or category filtering
+                // has no results.
                 if (_filteredProducts.isEmpty) {
                   return Center(
                     child: Padding(
                       padding: EdgeInsets.all(32.r),
+
                       child: CustomText(
                         text: 'No products found.',
                         fontSize: 14.sp,
@@ -338,14 +429,21 @@ class _ProductScreenState extends State<ProductScreen> {
 
                 return GridView.builder(
                   shrinkWrap: true,
+
                   physics: const NeverScrollableScrollPhysics(),
+
                   itemCount: _filteredProducts.length,
+
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 2,
+
                     crossAxisSpacing: 10.w,
+
                     mainAxisSpacing: 10.h,
+
                     childAspectRatio: 0.70,
                   ),
+
                   itemBuilder: (context, index) {
                     final product = _filteredProducts[index];
 
@@ -356,6 +454,7 @@ class _ProductScreenState extends State<ProductScreen> {
                       onTap: () {
                         Navigator.push(
                           context,
+
                           MaterialPageRoute(
                             builder: (_) =>
                                 ProductDetailsScreen(product: product),
@@ -365,59 +464,80 @@ class _ProductScreenState extends State<ProductScreen> {
 
                       child: Card(
                         elevation: 2,
+
                         clipBehavior: Clip.antiAlias,
+
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12.r),
                         ),
+
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
+
                           children: [
-                            // Displays the product image and discount badge.
+                            // -----------------------------------------
+                            // PRODUCT IMAGE
+                            // -----------------------------------------
                             Expanded(
                               child: Stack(
                                 children: [
                                   SizedBox(
                                     width: double.infinity,
+
                                     height: double.infinity,
+
                                     child: CachedNetworkImage(
                                       imageUrl: product.thumbnail,
+
                                       fit: BoxFit.cover,
+
                                       width: double.infinity,
 
-                                      // Shows a loading indicator while the image loads.
-                                      placeholder: (context, url) =>
-                                          const Center(
-                                            child: CircularProgressIndicator(),
-                                          ),
+                                      placeholder: (context, url) => Center(
+                                        child: CircularProgressIndicator(
+                                          color: isDarkMode
+                                              ? yellowColor
+                                              : primaryColor,
+                                        ),
+                                      ),
 
-                                      // Shows an icon if the image fails to load.
                                       errorWidget: (context, url, error) =>
                                           Icon(Icons.broken_image, size: 24.sp),
                                     ),
                                   ),
 
-                                  // Displays the discount percentage.
+                                  // -----------------------------------------
+                                  // DISCOUNT BADGE
+                                  // -----------------------------------------
                                   if (product.discountPercentage > 0)
                                     Positioned(
                                       top: 8.h,
                                       left: 8.w,
+
                                       child: Container(
                                         padding: EdgeInsets.symmetric(
                                           horizontal: 7.w,
                                           vertical: 4.h,
                                         ),
+
                                         decoration: BoxDecoration(
-                                          color: const Color(0xFFFFC325),
+                                          color: yellowColor,
+
                                           borderRadius: BorderRadius.circular(
                                             6.r,
                                           ),
                                         ),
+
                                         child: Text(
                                           '${product.discountPercentage.toStringAsFixed(0)}% OFF',
+
                                           style: TextStyle(
                                             fontFamily: 'Poppins',
+
                                             fontSize: 10.sp,
+
                                             fontWeight: FontWeight.bold,
+
                                             color: Colors.black,
                                           ),
                                         ),
@@ -427,44 +547,61 @@ class _ProductScreenState extends State<ProductScreen> {
                               ),
                             ),
 
+                            // -----------------------------------------
+                            // PRODUCT INFORMATION
+                            // -----------------------------------------
                             Padding(
                               padding: EdgeInsets.all(8.r),
+
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
+
                                 children: [
-                                  // Displays the product name.
+                                  // Product name.
                                   CustomText(
                                     text: product.title,
+
                                     fontSize: 14.sp,
+
                                     fontWeight: FontWeight.bold,
+
                                     maxLines: 1,
+
                                     overflow: TextOverflow.ellipsis,
                                   ),
 
                                   SizedBox(height: 4.h),
 
-                                  // Displays the product price.
+                                  // Product price.
                                   CustomText(
                                     text:
                                         '\$${product.price.toStringAsFixed(2)}',
+
                                     fontSize: 13.sp,
+
                                     fontWeight: FontWeight.w600,
                                   ),
 
                                   SizedBox(height: 4.h),
 
-                                  // Displays the product rating.
+                                  // Product rating.
                                   Row(
                                     children: [
                                       Icon(
                                         Icons.star,
-                                        color: const Color(0xFFFFC325),
+
+                                        color: yellowColor,
+
                                         size: 16.sp,
                                       ),
+
                                       SizedBox(width: 4.w),
+
                                       CustomText(
                                         text: product.rating.toStringAsFixed(1),
+
                                         fontSize: 12.sp,
+
                                         fontWeight: FontWeight.w500,
                                       ),
                                     ],

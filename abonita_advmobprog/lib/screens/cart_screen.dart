@@ -637,9 +637,14 @@ class _CartScreenState extends State<CartScreen> {
       final product = item.product;
       final quantity = item.quantity;
 
-      subtotal += product.price * quantity;
+      final itemSubtotal = product.price * quantity;
 
-      discountedTotal += product.price * quantity;
+      // Applies the product's discount percentage.
+      final itemDiscountedTotal =
+          itemSubtotal * (1 - product.discountPercentage / 100);
+
+      subtotal += itemSubtotal;
+      discountedTotal += itemDiscountedTotal;
     }
 
     final discount = subtotal - discountedTotal;

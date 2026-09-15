@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1092541913977",
+    "project_id": "advmobprog-firebase-57ea3",
+    "storage_bucket": "advmobprog-firebase-57ea3.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1092541913977:android:12ac41fff9b0094981ada8",
+        "android_client_info": {
+          "package_name": "com.example.abonita_advmobprog"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC719DOteFcOETyySXDRA3KQxQMdt5MfcM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

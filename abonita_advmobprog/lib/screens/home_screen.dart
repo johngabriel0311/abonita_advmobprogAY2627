@@ -5,6 +5,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'product_screen.dart';
 import 'cart_screen.dart';
 import 'profile_screen.dart';
+import 'chat_screen.dart';
 
 // services
 import '../services/user_service.dart';
@@ -62,7 +63,20 @@ class _HomeScreenState extends State<HomeScreen> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => const Scaffold(body: Center(child: Text('Chat Page'))),
+        builder: (context) => Scaffold(
+          appBar: AppBar(
+            title: const Text(
+              'Chat',
+              style: TextStyle(
+                fontFamily: 'Poppins',
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            backgroundColor: const Color(0xFF354591),
+            foregroundColor: Colors.white,
+          ),
+          body: const ChatScreen(),
+        ),
       ),
     );
   }

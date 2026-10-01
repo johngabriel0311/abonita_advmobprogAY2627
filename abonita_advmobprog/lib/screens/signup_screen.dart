@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart' as auth;
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -73,9 +74,7 @@ class _SignupScreenState extends State<SignupScreen> {
       // Use the username as the Firebase display name.
       await _userService.updateUsername(username: username);
 
-      // --------------------------------------------------
       // Save this account's profile using its Firebase UID.
-      // --------------------------------------------------
       await _userService.saveFirebaseProfile(
         firebaseUser: firebaseUser,
         firstName: firstName,
@@ -85,6 +84,21 @@ class _SignupScreenState extends State<SignupScreen> {
         username: username,
         email: email,
       );
+
+      // Save the user's profile to Cloud Firestore for chat.
+      await FirebaseFirestore.instance
+          .collection('Users')
+          .doc(firebaseUser.uid)
+          .set({
+            'uid': firebaseUser.uid,
+            'firstName': firstName,
+            'lastName': lastName,
+            'age': age,
+            'contactNo': contactNo,
+            'username': username,
+            'email': email,
+            'createdAt': FieldValue.serverTimestamp(),
+          });
 
       if (!mounted) return;
 

@@ -4,8 +4,8 @@
 
 # CTADMOBL Advance Mobile Programming
 
-Explored how Flutter handles cart data through API integration, navigation, and state management using Provider and getById.
+Explored how Flutter integrates Firebase Authentication, Cloud Firestore, user profiles, and real-time messaging to implement a chat system.
 
-## Laboratory Activity 3
+## Laboratory Activity 6
 
-The cart model represents the cart information retrieved from the API and provides the data needed for displaying each product. Services handle the communication with the API and retrieve the appropriate cart data, which is then passed to the cart screen for rendering. Users can select any cart item, making it possible to navigate directly to the same details_screen.dart used for viewing individual product information. This updated design pattern separates the data, service, and interface responsibilities, making the application easier to organize and maintain. Using getById at the Cart endpoint allows the application to retrieve a specific user's cart through their user ID instead of loading unrelated cart data.
+It all starts when a user selects another registered user from the chat list. The app retrieves the users' information from the Users collection in Cloud Firestore and uses their Firebase UIDs to generate a unique chat room ID. The messages subcollection inside the chat room stores the sender's UID, receiver's UID, message content, timestamp, and message status. The main idea of organizing chat data this way is to ensure that both users can access the same conversation and exchange messages in real time. When a user initiates a chat with themselves, the app generates a chat room ID using the same UID twice, and messages are stored in that room. However, in my current implementation, users cannot normally chat with themselves because the logged-in user is excluded from the chat list.
